@@ -173,20 +173,49 @@ function leaveCall() {
       >
         <h2>Google Meet Clone (1-to-1)</h2>
 
-        <video
-          ref={localVideoRef}
-          autoPlay
-          muted
-          playsInline
-          style={{ width: "300px", margin: "10px" }}
-        />
+       <div
+  style={{
+    width: "100%",
+    maxWidth: "600px",
+    aspectRatio: "16 / 9",
+    background: "#000",
+    marginBottom: "10px",
+  }}
+>
+  <video
+    ref={localVideoRef}
+    autoPlay
+    muted
+    playsInline
+    style={{
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+    }}
+  />
+</div>
 
-        <video
-          ref={remoteVideoRef}
-          autoPlay
-          playsInline
-          style={{ width: "300px", margin: "10px" }}
-        />
+
+        <div
+  style={{
+    width: "100%",
+    maxWidth: "600px",
+    aspectRatio: "16 / 9",
+    background: "#000",
+  }}
+>
+  <video
+    ref={remoteVideoRef}
+    autoPlay
+    playsInline
+    style={{
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+    }}
+  />
+</div>
+
 
         <div style={{ marginTop: "10px" }}>
           <button onClick={toggleCamera}>
