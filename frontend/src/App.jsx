@@ -8,7 +8,6 @@ function App() {
   const remoteVideoRef = useRef(null);
   const peerRef = useRef(null);
   const chatEndRef = useRef(null);
-  const isInitiatorRef = useRef(false);
 
   const roomId = "test-room";
 
@@ -21,6 +20,7 @@ function App() {
     init();
 
     socket.on("chat-message", (data) => {
+      console.log("📩 Chat received:", data);
       setMessages((prev) => [...prev, data]);
     });
 
@@ -50,7 +50,6 @@ function App() {
     );
 
     peerRef.current.ontrack = (event) => {
-      console.log("🎥 REMOTE STREAM RECEIVED");
       remoteVideoRef.current.srcObject = event.streams[0];
     };
 
@@ -65,83 +64,80 @@ function App() {
 
     socket.emit("join-room", roomId);
 
-    socket.on("user-joined", () => {
-      console.log("🟢 I am initiator");
-      isInitiatorRef.current = true;
+    socket.on("user-joined", async () => {
+      const offer = await peerRef.current.createOffer();
+      await peerRef.current.setLocalDescription(offer);
+      socket.emit("offer", { roomId, offer });
     });
 
     socket.on("offer", async (offer) => {
-      console.log("📥 Offer received");
-
-      await peerRef.current.setRemoteDescription(
-        new RTCSessionDescription(offer)
-      );
-
+      await peerRef.current.setRemoteDescription(offer);
       const answer = await peerRef.current.createAnswer();
       await peerRef.current.setLocalDescription(answer);
-
       socket.emit("answer", { roomId, answer });
     });
 
     socket.on("answer", async (answer) => {
-      console.log("📥 Answer received");
-
-      await peerRef.current.setRemoteDescription(
-        new RTCSessionDescription(answer)
-      );
+      await peerRef.current.setRemoteDescription(answer);
     });
 
     socket.on("ice-candidate", async (candidate) => {
       try {
-        await peerRef.current.addIceCandidate(
-          new RTCIceCandidate(candidate)
-        );
+        await peerRef.current.addIceCandidate(candidate);
       } catch (err) {
-        console.error("ICE error", err);
+        console.error(err);
       }
     });
-
-    // ✅ Create offer ONLY if initiator
-    setTimeout(async () => {
-      if (isInitiatorRef.current) {
-        console.log("📤 Creating offer");
-
-        const offer = await peerRef.current.createOffer();
-        await peerRef.current.setLocalDescription(offer);
-
-        socket.emit("offer", { roomId, offer });
-      }
-    }, 1000);
   }
 
   function toggleMute() {
-    const audioTrack = localVideoRef.current.srcObject.getAudioTracks()[0];
+    const audioTrack =
+      localVideoRef.current.srcObject.getAudioTracks()[0];
     audioTrack.enabled = !audioTrack.enabled;
     setIsMuted(!audioTrack.enabled);
   }
 
   function toggleCamera() {
-    const videoTrack = localVideoRef.current.srcObject.getVideoTracks()[0];
+    const videoTrack =
+      localVideoRef.current.srcObject.getVideoTracks()[0];
     videoTrack.enabled = !videoTrack.enabled;
     setIsCameraOff(!videoTrack.enabled);
   }
 
-  function leaveCall() {
-    localVideoRef.current?.srcObject
-      ?.getTracks()
-      .forEach((t) => t.stop());
+function leaveCall() {
+  // Stop local media
+  if (localVideoRef.current?.srcObject) {
+    localVideoRef.current.srcObject
+      .getTracks()
+      .forEach(track => track.stop());
+  }
 
-    peerRef.current?.close();
+  // Close peer connection
+  if (peerRef.current) {
+    peerRef.current.close();
     peerRef.current = null;
+  }
 
+  // Clear video elements
+  if (localVideoRef.current) {
     localVideoRef.current.srcObject = null;
-    remoteVideoRef.current.srcObject = null;
+  }
 
+  if (remoteVideoRef.current) {
+    remoteVideoRef.current.srcObject = null;
+  }
+
+  // Disconnect socket
+  if (socket.connected) {
     socket.disconnect();
   }
+}
+
 
   function sendMessage() {
     if (!message.trim()) return;
+
+    console.log("📤 Sending chat:", message);
 
     socket.emit("chat-message", {
       roomId,
@@ -158,62 +154,105 @@ function App() {
   }
 
   return (
-    <div style={{ display: "flex", height: "100vh", padding: "20px" }}>
-      {/* LEFT */}
-      <div style={{ flex: 2, textAlign: "center" }}>
+    <div
+      style={{
+        display: "flex",
+        height: "100vh",
+        padding: "20px",
+        gap: "20px",
+      }}
+    >
+      {/* LEFT SIDE */}
+      <div
+        style={{
+          flex: 2,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         <h2>Google Meet Clone (1-to-1)</h2>
 
-        <video ref={localVideoRef} autoPlay muted style={{ width: 300 }} />
-        <video ref={remoteVideoRef} autoPlay style={{ width: 300 }} />
+        <video
+          ref={localVideoRef}
+          autoPlay
+          muted
+          playsInline
+          style={{ width: "300px", margin: "10px" }}
+        />
 
-        <div style={{ marginTop: 10 }}>
+        <video
+          ref={remoteVideoRef}
+          autoPlay
+          playsInline
+          style={{ width: "300px", margin: "10px" }}
+        />
+
+        <div style={{ marginTop: "10px" }}>
           <button onClick={toggleCamera}>
             {isCameraOff ? "📷" : "📵"}
           </button>
-          <button onClick={toggleMute} style={{ marginLeft: 8 }}>
+
+          <button onClick={toggleMute} style={{ marginLeft: "8px" }}>
             {isMuted ? "🔇" : "🔊"}
           </button>
+
           <button
             onClick={leaveCall}
-            style={{ marginLeft: 8, background: "red", color: "white" }}
+            style={{
+              background: "red",
+              color: "white",
+              marginLeft: "8px",
+            }}
           >
-            📞
+           📞
           </button>
         </div>
       </div>
 
-      {/* RIGHT CHAT */}
+      {/* RIGHT SIDE CHAT */}
       <div
-        style={{
-          width: 450,
-          height: 450,
-          marginTop: 80,
-          border: "1px solid #ccc",
-          padding: 10,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <h4>Chat</h4>
+  style={{
+    border: "1px solid #ccc",
+    borderRadius: "0px",
+    padding: "10px",
+    display: "flex",
+    flexDirection: "column",
+    marginTop: "80px",
+    width: "450px",   // 👈 SMALL WIDTH
+    height: "450px",  // 👈 SAME HEIGHT → PERFECT SQUARE
+  }}
+>
+  <h4>Chat</h4>
 
-        <div style={{ flex: 1, overflowY: "auto", border: "1px solid #ddd" }}>
-          {messages.map((m, i) => (
-            <div key={i}>
-              <strong>{m.sender === socket.id ? "Me" : "User"}:</strong>{" "}
-              {m.message}
-            </div>
-          ))}
-          <div ref={chatEndRef} />
-        </div>
-
-        <input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          placeholder="Type..."
-        />
-        <button onClick={sendMessage}>Send</button>
+  <div
+    style={{
+      flex: 1,
+      overflowY: "auto",
+      border: "1px solid #ddd",
+      marginBottom: "10px",
+      padding: "5px",
+    }}
+  >
+    {messages.map((msg, i) => (
+      <div key={i}>
+        <strong>{msg.sender === socket.id ? "Me" : "User"}:</strong>{" "}
+        {msg.message}
       </div>
+    ))}
+    <div ref={chatEndRef} />
+  </div>
+
+  <input
+    value={message}
+    onChange={(e) => setMessage(e.target.value)}
+    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+    placeholder="Type a message..."
+  />
+
+  <button onClick={sendMessage}>Send</button>
+</div>
+
     </div>
   );
 }
