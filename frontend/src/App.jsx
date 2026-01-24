@@ -189,7 +189,7 @@ function leaveCall() {
         <div
           key={i}
           className={
-            msg.sender === socket.id ? "Me" : "Other"
+            msg.sender === socket.id ? "chat-message me" : "chat-message other"
           }
         >
           <span>{msg.message}</span>
