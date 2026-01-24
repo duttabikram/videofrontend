@@ -156,8 +156,6 @@ function leaveCall() {
 
 
   return (
-import "./Meet.css";
-
 <div className="meet-container">
   {/* LEFT SIDE */}
   <div className="video-section">
