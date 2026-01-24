@@ -154,62 +154,170 @@ function leaveCall() {
     setMessage("");
   }
 
-  return (
-<div className="meet-container">
-  {/* LEFT SIDE – VIDEO */}
-  <div className="video-section">
-    <h2>Google Meet Clone</h2>
+  const controlBtn = {
+  padding: "10px 14px",
+  borderRadius: "8px",
+  border: "none",
+  background: "#1976d2",
+  color: "#fff",
+  cursor: "pointer",
+  fontWeight: "500",
+};
 
-    <div className="video-grid">
-      <video ref={localVideoRef} autoPlay playsInline className="video-box" />
-      <video ref={remoteVideoRef} autoPlay playsInline className="video-box" />
+  return (
+<div
+  style={{
+    display: "flex",
+    height: "100vh",
+    padding: "24px",
+    gap: "24px",
+    background: "#f4f6f8",
+    fontFamily: "Inter, sans-serif",
+  }}
+>
+  {/* LEFT SIDE – VIDEO */}
+  <div
+    style={{
+      flex: 3,
+      background: "#fff",
+      borderRadius: "12px",
+      boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+      padding: "20px",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+    }}
+  >
+    <h2 style={{ marginBottom: "16px" }}>Google Meet Clone</h2>
+
+    <div
+      style={{
+        display: "flex",
+        gap: "16px",
+        marginBottom: "20px",
+      }}
+    >
+      <video
+        ref={localVideoRef}
+        autoPlay
+        playsInline
+        style={{
+          width: "320px",
+          height: "200px",
+          borderRadius: "10px",
+          background: "#000",
+        }}
+      />
+
+      <video
+        ref={remoteVideoRef}
+        autoPlay
+        playsInline
+        style={{
+          width: "320px",
+          height: "200px",
+          borderRadius: "10px",
+          background: "#000",
+        }}
+      />
     </div>
 
-    <div className="controls">
-      <button className="control-btn" onClick={toggleCamera}>
-        {isCameraOff ? "📷" : "📵"}
+    {/* CONTROLS */}
+    <div
+      style={{
+        display: "flex",
+        gap: "12px",
+      }}
+    >
+      <button style={controlBtn} onClick={toggleCamera}>
+        {isCameraOff ? "Turn Camera On" : "Turn Camera Off"}
       </button>
 
-      <button className="control-btn" onClick={toggleMute}>
-        {isMuted ? "🔇" : "🔊"}
+      <button style={controlBtn} onClick={toggleMute}>
+        {isMuted ? "Unmute" : "Mute"}
       </button>
 
-      <button className="control-btn leave-btn" onClick={leaveCall}>
-        📞
+      <button
+        onClick={leaveCall}
+        style={{
+          ...controlBtn,
+          background: "#e53935",
+          color: "#fff",
+        }}
+      >
+        Leave Call
       </button>
     </div>
   </div>
 
   {/* RIGHT SIDE – CHAT */}
-  <div className="chat-section">
-    <h4>Chat</h4>
+  <div
+    style={{
+      flex: 1.5,
+      background: "#fff",
+      borderRadius: "12px",
+      boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+      padding: "16px",
+      display: "flex",
+      flexDirection: "column",
+    }}
+  >
+    <h4 style={{ marginBottom: "10px" }}>Chat</h4>
 
-    <div className="chat-box">
+    <div
+      style={{
+        flex: 1,
+        overflowY: "auto",
+        border: "1px solid #e0e0e0",
+        borderRadius: "8px",
+        padding: "10px",
+        marginBottom: "10px",
+      }}
+    >
       {messages.map((msg, i) => (
         <div
           key={i}
-          className={
-            msg.sender === socket.id ? "chat-message me" : "chat-message other"
-          }
+          style={{
+            marginBottom: "6px",
+            textAlign: msg.sender === socket.id ? "right" : "left",
+          }}
         >
-          <span>{msg.message}</span>
+          <span
+            style={{
+              display: "inline-block",
+              padding: "6px 10px",
+              borderRadius: "8px",
+              background:
+                msg.sender === socket.id ? "#1976d2" : "#eeeeee",
+              color: msg.sender === socket.id ? "#fff" : "#000",
+            }}
+          >
+            {msg.message}
+          </span>
         </div>
       ))}
       <div ref={chatEndRef} />
     </div>
 
-    <div className="chat-input">
+    <div style={{ display: "flex", gap: "8px" }}>
       <input
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && sendMessage()}
         placeholder="Type a message..."
+        style={{
+          flex: 1,
+          padding: "10px",
+          borderRadius: "6px",
+          border: "1px solid #ccc",
+        }}
       />
-      <button onClick={sendMessage}>Send</button>
+      <button style={controlBtn} onClick={sendMessage}>
+        Send
+      </button>
     </div>
   </div>
 </div>
-
   );
 }
 
