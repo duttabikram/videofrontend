@@ -154,94 +154,63 @@ function leaveCall() {
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        height: "100vh",
-        padding: "20px",
-        gap: "20px",
-      }}
-    >
-      {/* LEFT SIDE */}
-      <div
-        style={{
-          flex: 2,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <h2>Google Meet Clone (1-to-1)</h2>
+    import "./Meet.css";
 
-       <video ref={localVideoRef} autoPlay  playsInline style={{ width: "300px", margin: "10px" }} /> 
-       <video ref={remoteVideoRef} autoPlay playsInline style={{ width: "300px", margin: "10px" }} />
+<div className="meet-container">
+  {/* LEFT SIDE – VIDEO */}
+  <div className="video-section">
+    <h2>Google Meet Clone</h2>
 
-        <div style={{ marginTop: "10px" }}>
-          <button onClick={toggleCamera}>
-            {isCameraOff ? "📷" : "📵"}
-          </button>
+    <div className="video-grid">
+      <video ref={localVideoRef} autoPlay playsInline className="video-box" />
+      <video ref={remoteVideoRef} autoPlay playsInline className="video-box" />
+    </div>
 
-          <button onClick={toggleMute} style={{ marginLeft: "8px" }}>
-            {isMuted ? "🔇" : "🔊"}
-          </button>
+    <div className="controls">
+      <button className="control-btn" onClick={toggleCamera}>
+        {isCameraOff ? "📷" : "📵"}
+      </button>
 
-          <button
-            onClick={leaveCall}
-            style={{
-              background: "red",
-              color: "white",
-              marginLeft: "8px",
-            }}
-          >
-           📞
-          </button>
-        </div>
-      </div>
+      <button className="control-btn" onClick={toggleMute}>
+        {isMuted ? "🔇" : "🔊"}
+      </button>
 
-      {/* RIGHT SIDE CHAT */}
-      <div
-  style={{
-    border: "1px solid #ccc",
-    borderRadius: "0px",
-    padding: "10px",
-    display: "flex",
-    flexDirection: "column",
-    marginTop: "80px",
-    width: "450px",   // 👈 SMALL WIDTH
-    height: "450px",  // 👈 SAME HEIGHT → PERFECT SQUARE
-  }}
->
-  <h4>Chat</h4>
-
-  <div
-    style={{
-      flex: 1,
-      overflowY: "auto",
-      border: "1px solid #ddd",
-      marginBottom: "10px",
-      padding: "5px",
-    }}
-  >
-    {messages.map((msg, i) => (
-      <div key={i}>
-        <strong>{msg.sender === socket.id ? "Me" : "User"}:</strong>{" "}
-        {msg.message}
-      </div>
-    ))}
-    <div ref={chatEndRef} />
+      <button className="control-btn leave-btn" onClick={leaveCall}>
+        📞
+      </button>
+    </div>
   </div>
 
-  <input
-    value={message}
-    onChange={(e) => setMessage(e.target.value)}
-    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-    placeholder="Type a message..."
-  />
+  {/* RIGHT SIDE – CHAT */}
+  <div className="chat-section">
+    <h4>Chat</h4>
 
-  <button onClick={sendMessage}>Send</button>
+    <div className="chat-box">
+      {messages.map((msg, i) => (
+        <div
+          key={i}
+          className={
+            msg.sender === socket.id ? "Me" : "Other"
+          }
+        >
+          <span>{msg.message}</span>
+        </div>
+      ))}
+      <div ref={chatEndRef} />
+    </div>
+
+    <div className="chat-input">
+      <input
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+        placeholder="Type a message..."
+      />
+      <button onClick={sendMessage}>Send</button>
+    </div>
+  </div>
 </div>
 
-    </div>
   );
 }
 
