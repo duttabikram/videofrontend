@@ -1,49 +1,60 @@
-/* Main layout */
-.meet-container {
-  display: flex;
-  height: 100vh;
-  padding: 20px;
-  gap: 20px;
-  background: #f4f6f8;
-  font-family: "Inter", sans-serif;
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Inter, Arial, sans-serif;
 }
 
-/* VIDEO SECTION */
+/* MAIN CONTAINER */
+.meet-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background: #f4f6f8;
+  padding: 24px;
+  gap: 24px;
+}
+
+/* LEFT – VIDEO AREA */
 .video-section {
   flex: 3;
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  padding: 16px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
-/* Video grid */
-.video-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
+.video-section h2 {
   margin-bottom: 16px;
 }
 
+/* VIDEOS */
+.video-wrapper {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
 .video-box {
-  width: 100%;
+  width: 340px;
   height: 220px;
-  background: #000;
-  border-radius: 10px;
+  background: black;
+  border-radius: 12px;
   object-fit: cover;
 }
 
-/* Controls */
+/* CONTROLS */
 .controls {
   display: flex;
-  justify-content: center;
   gap: 12px;
 }
 
 .control-btn {
-  padding: 10px 14px;
+  padding: 10px 16px;
   border-radius: 8px;
   border: none;
   background: #1976d2;
@@ -52,68 +63,66 @@
   font-weight: 500;
 }
 
+.control-btn:hover {
+  opacity: 0.9;
+}
+
 .leave-btn {
   background: #e53935;
 }
 
-/* CHAT SECTION */
-/* CHAT SECTION */
+/* RIGHT – CHAT */
 .chat-section {
   flex: 1.5;
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   padding: 16px;
-
   display: flex;
   flex-direction: column;
-
-  /* 🔥 CRITICAL */
-  height: 100%;
-  min-height: 0;
 }
 
-/* Chat messages area */
+.chat-section h4 {
+  margin-bottom: 10px;
+}
+
+/* CHAT MESSAGES */
 .chat-box {
   flex: 1;
-  min-height: 0;          /* 🔥 MOST IMPORTANT LINE */
   overflow-y: auto;
-
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 10px;
   margin-bottom: 10px;
 }
 
-/* Individual messages */
-.chat-message {
-  margin-bottom: 8px;
+/* MESSAGE BUBBLES */
+.message {
+  margin-bottom: 6px;
   display: flex;
 }
 
-.chat-message.me {
+.message.me {
   justify-content: flex-end;
 }
 
-.chat-message span {
-  padding: 8px 12px;
+.message span {
+  padding: 6px 10px;
   border-radius: 8px;
   max-width: 75%;
-  word-break: break-word;
-  font-size: 14px;
 }
 
-.chat-message.me span {
+.message.me span {
   background: #1976d2;
   color: white;
 }
 
-.chat-message.other span {
-  background: #e0e0e0;
+.message.other span {
+  background: #eeeeee;
   color: black;
 }
 
-/* Chat input */
+/* CHAT INPUT */
 .chat-input {
   display: flex;
   gap: 8px;
@@ -132,17 +141,5 @@
   border: none;
   background: #1976d2;
   color: white;
-}
-
-/* 📱 MOBILE RESPONSIVE */
-@media (max-width: 900px) {
-  .meet-container {
-    flex-direction: column;
-    height: auto;
-  }
-
-  .video-section,
-  .chat-section {
-    width: 100%;
-  }
+  cursor: pointer;
 }
