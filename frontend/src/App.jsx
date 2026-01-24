@@ -9,6 +9,7 @@ function App() {
   const remoteVideoRef = useRef(null);
   const peerRef = useRef(null);
   const chatEndRef = useRef(null);
+  const localStreamRef = useRef(null);
 
   const roomId = "test-room";
 
@@ -16,6 +17,9 @@ function App() {
   const [isCameraOff, setIsCameraOff] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+
+
 
   useEffect(() => {
     init();
@@ -40,6 +44,7 @@ function App() {
       audio: true,
     });
 
+    localStreamRef.current = stream;
     localVideoRef.current.srcObject = stream;
 
     peerRef.current = new RTCPeerConnection({
@@ -104,6 +109,55 @@ function App() {
     videoTrack.enabled = !videoTrack.enabled;
     setIsCameraOff(!videoTrack.enabled);
   }
+
+  async function startScreenShare() {
+  try {
+    const screenStream = await navigator.mediaDevices.getDisplayMedia({
+      video: true,
+      audio: false,
+    });
+
+    const screenTrack = screenStream.getVideoTracks()[0];
+
+    const sender = peerRef.current
+      .getSenders()
+      .find((s) => s.track && s.track.kind === "video");
+
+    if (sender) {
+      sender.replaceTrack(screenTrack);
+    }
+
+    // Show screen locally
+    localVideoRef.current.srcObject = screenStream;
+    setIsScreenSharing(true);
+
+    // When user clicks "Stop sharing" from browser UI
+    screenTrack.onended = () => {
+      stopScreenShare();
+    };
+  } catch (err) {
+    console.error("Screen share error:", err);
+  }
+}
+
+  function stopScreenShare() {
+  const cameraTrack =
+    localStreamRef.current.getVideoTracks()[0];
+
+  const sender = peerRef.current
+    .getSenders()
+    .find((s) => s.track && s.track.kind === "video");
+
+  if (sender && cameraTrack) {
+    sender.replaceTrack(cameraTrack);
+  }
+
+  localVideoRef.current.srcObject =
+    localStreamRef.current;
+
+  setIsScreenSharing(false);
+}
+
 
 function leaveCall() {
   // Stop local media
@@ -184,6 +238,15 @@ function leaveCall() {
       <button className="control-btn" onClick={toggleMute}>
         {isMuted ? "Unmute" : "Mute"}
       </button>
+
+      <button
+    className="control-btn"
+    onClick={
+      isScreenSharing ? stopScreenShare : startScreenShare
+    }
+  >
+    {isScreenSharing ? "Stop Sharing" : "Share Screen"}
+  </button>
 
       <button
         className="control-btn leave-btn"
