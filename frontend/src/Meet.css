@@ -144,6 +144,85 @@
   cursor: pointer;
 }
 
+ /* ========================= */
+/* JOIN MEETING SCREEN */
+/* ========================= */
+
+.join-container {
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #1a73e8, #4285f4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* CARD */
+.join-container > div,
+.join-container {
+  background: transparent;
+}
+
+.join-container {
+  flex-direction: column;
+}
+
+/* INNER CARD */
+.join-container {
+  text-align: center;
+}
+
+.join-container h2 {
+  color: #ffffff;
+  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+/* INPUT */
+.join-container input {
+  width: 280px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  margin-bottom: 14px;
+}
+
+/* BUTTON */
+.join-container button {
+  width: 280px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #ffffff;
+  color: #1a73e8;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.join-container button:hover {
+  background: #e8f0fe;
+}
+
+/* ========================= */
+/* MOBILE RESPONSIVE */
+/* ========================= */
+
+@media (max-width: 480px) {
+  .join-container h2 {
+    font-size: 22px;
+  }
+
+  .join-container input,
+  .join-container button {
+    width: 90%;
+  }
+}
+
 /* ========================= */
 /* RESPONSIVE DESIGN */
 /* ========================= */
