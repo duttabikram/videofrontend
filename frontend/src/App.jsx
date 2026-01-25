@@ -11,7 +11,8 @@ function App() {
   const chatEndRef = useRef(null);
   const localStreamRef = useRef(null);
 
-  const roomId = "test-room";
+  const [roomId, setRoomId] = useState("");
+  const [joined, setJoined] = useState(false);
 
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOff, setIsCameraOff] = useState(false);
@@ -22,8 +23,6 @@ function App() {
 
 
   useEffect(() => {
-    init();
-
     socket.on("chat-message", (data) => {
       console.log("📩 Chat received:", data);
       setMessages((prev) => [...prev, data]);
@@ -38,7 +37,7 @@ function App() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  async function init() {
+  async function init(room) {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true,
@@ -62,25 +61,25 @@ function App() {
     peerRef.current.onicecandidate = (event) => {
       if (event.candidate) {
         socket.emit("ice-candidate", {
-          roomId,
+          roomId: room,
           candidate: event.candidate,
         });
       }
     };
 
-    socket.emit("join-room", roomId);
+    socket.emit("join-room", room);
 
     socket.on("user-joined", async () => {
       const offer = await peerRef.current.createOffer();
       await peerRef.current.setLocalDescription(offer);
-      socket.emit("offer", { roomId, offer });
+      socket.emit("offer", { roomId: room, offer });
     });
 
     socket.on("offer", async (offer) => {
       await peerRef.current.setRemoteDescription(offer);
       const answer = await peerRef.current.createAnswer();
       await peerRef.current.setLocalDescription(answer);
-      socket.emit("answer", { roomId, answer });
+      socket.emit("answer", { roomId: room, answer });
     });
 
     socket.on("answer", async (answer) => {
@@ -208,6 +207,29 @@ function leaveCall() {
     setMessage("");
   }
 
+    if (!joined) {
+    return (
+      <div className="join-container">
+        <h2>Join a Meeting</h2>
+
+        <input
+          value={roomId}
+          onChange={(e) => setRoomId(e.target.value)}
+          placeholder="Enter room ID"
+        />
+
+        <button
+          onClick={() => {
+            if (!roomId.trim()) return;
+            init(roomId);
+            setJoined(true);
+          }}
+        >
+          Join
+        </button>
+      </div>
+    );
+  }
 
   return (
 <div className="meet-container">
